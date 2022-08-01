@@ -3,7 +3,6 @@ import axios from 'axios'
 import mysqlConnection from '../connection/mysql.js'
 dotenv.config()
 
-var connection = await mysqlConnection('reg-micro')
 
 async function getRole(cmuitaccount_name) {
     let result = {
@@ -14,6 +13,7 @@ async function getRole(cmuitaccount_name) {
         role: null,
         userRegId: null,
     }
+    const connection = await mysqlConnection('reg-micro')
     await connection.query("SELECT * FROM tbl_user WHERE cmuitaccount_name = :cmuitaccount_name",
         { cmuitaccount_name: cmuitaccount_name }
     ).then(([rows]) => {
@@ -49,6 +49,7 @@ async function getRole(cmuitaccount_name) {
 }
 
 const login = (req, res) => {
+    console.log("USER LOGIN")
     var oauthCode = req.query.code
     axios({
         method: "post",
@@ -74,9 +75,9 @@ const login = (req, res) => {
         }).then(async (response) => {
             const basicInfo = response.data
             const cmuitaccount_name = basicInfo.cmuitaccount_name
-            console.log(cmuitaccount_name);
+            // console.log(cmuitaccount_name);
             const roleObject = await getRole(cmuitaccount_name)
-            console.log(roleObject);
+            // console.log(roleObject);
 
             if (roleObject.status === 'ok') {
                 basicInfo.role = roleObject.role
@@ -84,26 +85,31 @@ const login = (req, res) => {
                 console.log(basicInfo);
                 res.json(basicInfo)
             } else {
-                res.status(roleObject.httpStatusCode).json({
+                const response = {
                     'code': roleObject.errorCode,
-                    'message': roleObject.message
-                })
+                    'message': roleObject.message,
+                    'httpStatusCode': roleObject.httpStatusCode
+                }
+                console.error(response.code + ' ' + response.message);
+                res.status(response.httpStatusCode).json(response)
             }
 
         }).catch((error) => {
-            console.error(error.code);
-            res.status(500).json({
+            const response = {
                 'code': 'L2',
                 'message': error.code
-            })
+            }
+            console.error(response.code + ' ' + response.message);
+            res.status(500).json(response)
         })
     })
         .catch((error) => {
-            console.error(error.code);
-            res.status(500).json({
+            const response = {
                 'code': 'L1',
                 'message': error.code
-            })
+            }
+            console.error(response.code + ' ' + response.message);
+            res.status(500).json(response)
         });
 }
 
