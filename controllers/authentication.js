@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv'
 import axios from 'axios'
 import mysqlConnection from '../connection/mysql.js'
+import jwt from 'jsonwebtoken'
 dotenv.config()
 
 
@@ -80,10 +81,30 @@ const login = (req, res) => {
             // console.log(roleObject);
 
             if (roleObject.status === 'ok') {
-                basicInfo.role = roleObject.role
-                basicInfo.userRegId = roleObject.userRegId
-                console.log(basicInfo);
-                res.json(basicInfo)
+                try {
+
+                    basicInfo.role = roleObject.role
+                    basicInfo.userRegId = roleObject.userRegId
+
+                    const userToken = jwt.sign(
+                        {
+                            cmuitaccount_name: basicInfo.cmuitaccount_name,
+                            role: basicInfo.role
+                        },
+                        process.env.JWT_SECRET,
+                        {
+                            expiresIn: '4h'
+                        }
+                    )
+                    basicInfo.userToken = userToken
+
+                    console.log(basicInfo);
+                    res.json(basicInfo)
+                }
+                catch (err) {
+                    console.error(err.message);
+                    res.status(500).json(err.message)
+                }
             } else {
                 const response = {
                     'code': roleObject.errorCode,
@@ -113,6 +134,8 @@ const login = (req, res) => {
         });
 }
 
-const verify = (req, res) => res.json('bbb')
+const verify = (req, res, next) => {
+    res.json('bbb')
+}
 
 export { login, verify }

@@ -12,9 +12,24 @@ app.use(cors('*'))
 app.use(bodyParser.json())
 app.get("/", (req, res) => res.status(401).json("Unauthorized"))
 
+
+const abc = (req, res, next) => {
+    const a = req.query
+    const islogin = false
+    if (islogin) {
+        next()
+    }
+    else {
+        res.status(200).json(a)
+    }
+}
+
 app.use('/', authenticationRoutes)
-app.use('/courses', coursesRoutes)
+
+
+app.use(abc)
 app.use('/prepare', prepareRoutes)
+app.use('/courses', coursesRoutes)
 
 app.listen((process.env.HOST, process.env.PORT), () => {
     console.log(`Running on http://${process.env.HOST}:${process.env.PORT}`);
