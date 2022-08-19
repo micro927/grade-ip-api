@@ -1,56 +1,49 @@
 import * as dotenv from 'dotenv'
 import axios from 'axios'
-import mysqlConnection from '../connection/mysql.js'
+// import mysqlConnection from '../connection/mysql.js'
 import jwt from 'jsonwebtoken'
 dotenv.config()
 
 
 async function getRole(cmuitaccount_name) {
-    let result = {
-        status: 'error',
-        errorCode: null,
-        httpStatusCode: 200,
-        message: '',
-        role: null,
-        userRegId: null,
+    const roleLevel = {
+        instruc: 1,
+        department: 2,
+        faculty: 3,
+        instrucdepartment: 2,
+        instrucfaculty: 3,
+        admin: 4
     }
-    const connection = await mysqlConnection('reg-micro')
-    await connection.query("SELECT * FROM tbl_user WHERE cmuitaccount_name = :cmuitaccount_name",
-        { cmuitaccount_name: cmuitaccount_name }
-    ).then(([rows]) => {
-        if (rows.length > 0) {
-            result.status = 'ok'
-            result.role = 'admin'
-            result.userRegId = 'reg'
-        }
-        else {
-            /// เช็คว่าเป็น ภาค/อ/คณะ ตาม ลำดับ โดยซ้อน if ไปเรื่อยๆ รวม 4 ชั้น
-            const getSomeRole = true  // for dev
-            if (getSomeRole === true) { // for dev
-                result.status = 'ok'
-                result.role = 'advisor'
-                result.userRegId = 'LF05'
+
+    let result = {}
+    await axios.get('https://www1.reg.cmu.ac.th/registrationoffice/api/check_user_dept_fac_course.php',
+        {
+            params: {
+                itaccount: cmuitaccount_name,
+                token: '2bd98a77c2be2835231b8c832901e240'
+            }
+        }).then(async (response) => {
+            const data = await response.data
+            if (response?.data ?? false) {
+                result.status = 200
+                result.role = roleLevel[data.typeuser]
+                result.instructorId = data?.instructor_id ?? null
+                result.courselist = data?.courseno ?? []
             }
             else {
-                result.errorCode = 'R1'
-                result.httpStatusCode = 401
-                result.message = 'Unauthorized'
-            }// end find roles
-        }
-    })
+                result.status = 401
+                result.message = 'Not Found this user in registrationoffice'
+            }
+        })
         .catch((err) => {
-            result.errorCode = 'R2'
-            result.httpStatusCode = 500
-            result.message = err.sqlMessage
-        }).then(() => {
-            connection.end()
-        });
+            result.status = 500
+            result.message = err.message
+        })
 
     return result
 }
 
 const login = (req, res) => {
-    console.log("USER LOGIN")
     var oauthCode = req.query.code
     axios({
         method: "post",
@@ -76,29 +69,25 @@ const login = (req, res) => {
         }).then(async (response) => {
             const basicInfo = response.data
             const cmuitaccount_name = basicInfo.cmuitaccount_name
-            // console.log(cmuitaccount_name);
             const roleObject = await getRole(cmuitaccount_name)
-            // console.log(roleObject);
 
-            if (roleObject.status === 'ok') {
+            if (roleObject.status === 200) {
                 try {
-
                     basicInfo.role = roleObject.role
-                    basicInfo.userRegId = roleObject.userRegId
-
+                    basicInfo.instructorId = roleObject.instructorId
+                    basicInfo.courseList = roleObject.courselist
                     const userToken = jwt.sign(
                         {
                             cmuitaccount_name: basicInfo.cmuitaccount_name,
-                            role: basicInfo.role
+                            role: basicInfo.role,
+                            instructorId: basicInfo.instructorId,
+                            courseList: basicInfo.courseList
                         },
-                        process.env.JWT_SECRET,
-                        {
-                            expiresIn: '4h'
-                        }
+                        process.env.JWT_SECRET
                     )
                     basicInfo.userToken = userToken
 
-                    console.log(basicInfo);
+                    // console.log(basicInfo);
                     res.json(basicInfo)
                 }
                 catch (err) {
@@ -107,12 +96,11 @@ const login = (req, res) => {
                 }
             } else {
                 const response = {
-                    'code': roleObject.errorCode,
+                    'code': roleObject.status,
                     'message': roleObject.message,
-                    'httpStatusCode': roleObject.httpStatusCode
                 }
                 console.error(response.code + ' ' + response.message);
-                res.status(response.httpStatusCode).json(response)
+                res.status(response.code).json(response)
             }
 
         }).catch((error) => {
@@ -134,8 +122,43 @@ const login = (req, res) => {
         });
 }
 
-const verify = (req, res, next) => {
-    res.json('bbb')
+const verifyMiddleware = (req, res, next) => {
+    const AppAuthorization = req.headers.authorization ?? false
+    const AppToken = AppAuthorization ? AppAuthorization.split(" ")[1] : 'failed'
+    try {
+        const UserDecoded = jwt.verify(AppToken, process.env.JWT_SECRET)
+        res.locals.UserDecoded = {
+            isAuthorized: true,
+            ...UserDecoded
+        }
+        next()
+    }
+    catch (err) {
+        err.isAuthorized = false
+        res.status(401).json(JSON.stringify(err))
+        console.log(JSON.stringify(err))
+    }
 }
 
-export { login, verify }
+const checkUserToken = (req, res) => {
+    try {
+        const AppAuthorization = req.headers.authorization ?? false
+        const AppToken = AppAuthorization ? AppAuthorization.split(" ")[1] : 'failed'
+        const UserDecoded = jwt.verify(AppToken, process.env.JWT_SECRET)
+        console.log(UserDecoded.cmuitaccount_name);
+        res.status(200).json({
+            isAuthorized: true,
+            cmuitaccount_name: UserDecoded.cmuitaccount_name,
+            role: UserDecoded.role
+        })
+    }
+    catch (err) {
+        res.status(401).json({
+            isAuthorized: false,
+            message: err.message
+        })
+    }
+    return
+}
+
+export { login, checkUserToken, verifyMiddleware }

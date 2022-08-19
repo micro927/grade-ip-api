@@ -1,10 +1,9 @@
 import express from 'express'
+import courseList from '../controllers/courseList.js'
 
 const router = express.Router()
 
-router.get('/', (req, res) => {
-    res.send('HERES ARE ALL COURSES')
-})
+router.get('/', courseList)
 
 router.get('/course/:id', (req, res) => {
     res.send(req.params.id)

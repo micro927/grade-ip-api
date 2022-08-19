@@ -9,8 +9,8 @@ async function mysqlConnection(dbName = process.env.DB_NAME) {
         password: process.env.DB_PASSWORD,
         database: dbName,
         waitForConnections: true,
-        connectionLimit: 50,
-        queueLimit: 0,
+        // connectionLimit: 50,
+        // queueLimit: 0,
         namedPlaceholders: true
     });
     return pool.promise()
