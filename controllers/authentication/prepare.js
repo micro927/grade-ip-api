@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import mysqlConnection from '../connection/mysql.js'
+import mysqlConnection from '../../connection/mysql.js'
 dotenv.config()
 
 async function getStudentStatusList(studentIdRows) {
