@@ -29,6 +29,10 @@ const courseList = async (req, res) => {
                 res.status(200).json([])
             }
         })
+        .catch((error) => {
+            res.status(500)
+            console.log("mysqlConnection ERROR: ", error.code);
+        })
 }
 
 export default courseList
