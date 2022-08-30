@@ -4,6 +4,7 @@ import bodyParser from 'body-parser'
 import * as dotenv from 'dotenv'
 import { login, checkUserToken, verifyMiddleware } from './controllers/authentication/index.js'
 import teacherRoutes from './routes/teacher.js'
+import departmentRoutes from './routes/department.js'
 
 dotenv.config()
 const app = express()
@@ -17,6 +18,7 @@ app.get("/checkusertoken", checkUserToken)
 
 // for application function
 app.use('/teacher', verifyMiddleware, teacherRoutes)
+app.use('/department', verifyMiddleware, departmentRoutes)
 
 app.listen((process.env.HOST, process.env.PORT), () => {
     console.log(`Running on http://${process.env.HOST}:${process.env.PORT}`);
