@@ -25,6 +25,12 @@ const studentGradeList = async (req, res) => {
                 res.status(403).json([])
             }
         })
+        .catch((error) => {
+            res.status(500)
+            console.log("mysqlConnection ERROR: ", error.code);
+        })
+    await connection.end()
+
 }
 
 export default studentGradeList

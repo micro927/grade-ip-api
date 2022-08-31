@@ -12,7 +12,7 @@ async function getRole(cmuitaccount_name) {
         faculty: 3,
         instrucdepartment: 2,
         instrucfaculty: 3,
-        admin: 4
+        admin: 9
     }
 
     let result = {}
@@ -74,6 +74,9 @@ const login = (req, res) => {
             if (roleObject.status === 200) {
                 try {
                     basicInfo.role = roleObject.role
+                    // for dev
+                    basicInfo.role = basicInfo.cmuitaccount_name == 'sitthiphon.s' ? 9 : basicInfo.role
+                    // end dev
                     basicInfo.instructorId = roleObject.instructorId
                     basicInfo.courseList = roleObject.courselist
                     const userToken = jwt.sign(
