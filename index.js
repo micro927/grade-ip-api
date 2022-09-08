@@ -5,7 +5,6 @@ import * as dotenv from 'dotenv'
 import { login, checkUserToken, verifyMiddleware } from './controllers/authentication/index.js'
 import teacherRoutes from './routes/teacher.js'
 import departmentRoutes from './routes/department.js'
-import prepareRoutes from './routes/prepare.js'
 // import { createHash } from 'crypto'
 
 // const hash = createHash('sha256', 'submission_id')
@@ -22,11 +21,9 @@ app.use(cors('*'))
 app.use(bodyParser.json())
 app.get("/", (req, res) => res.status(400).json('HELLO MARS')) // should disable on production.
 
-
 // for authentication
 app.get('/login', login)
 app.get('/checkusertoken', checkUserToken)
-app.get('/prepare', prepareRoutes)
 
 // for application function
 app.use('/teacher', verifyMiddleware, teacherRoutes)
