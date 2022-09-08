@@ -1,7 +1,7 @@
 import express from 'express'
-import { createMainListTable } from '../controllers/prepare.js'
+import getStudentStatusList from '../controllers/authentication/prepare.js'
 const router = express.Router()
 
-router.get('/createmainlisttable', createMainListTable)
+router.get('/', (req, res) => res.status(400).json('HELLO MARS'))
 
 export default router

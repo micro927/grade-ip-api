@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv'
 import { login, checkUserToken, verifyMiddleware } from './controllers/authentication/index.js'
 import teacherRoutes from './routes/teacher.js'
 import departmentRoutes from './routes/department.js'
+import prepareRoutes from './routes/prepare.js'
 // import { createHash } from 'crypto'
 
 // const hash = createHash('sha256', 'submission_id')
@@ -15,18 +16,31 @@ import departmentRoutes from './routes/department.js'
 
 dotenv.config()
 const app = express()
+
+//starting config
 app.use(cors('*'))
 app.use(bodyParser.json())
-app.get("/", (req, res) => res.status(400).json('HELLO MARS'))
+app.get("/", (req, res) => res.status(400).json('HELLO MARS')) // should disable on production.
+
 
 // for authentication
 app.get('/login', login)
-app.get("/checkusertoken", checkUserToken)
+app.get('/checkusertoken', checkUserToken)
+app.get('/prepare', prepareRoutes)
 
 // for application function
 app.use('/teacher', verifyMiddleware, teacherRoutes)
 app.use('/department', verifyMiddleware, departmentRoutes)
 
+
+// default error response
+// app.use((req, res, next) => {
+//     console.log('Route does not exist')
+//     res.status(404).send({
+//         status: 404,
+//         message: 'Not Found',
+//     })
+// })
 app.listen((process.env.HOST, process.env.PORT), () => {
     console.log(`Running on http://${process.env.HOST}:${process.env.PORT}`);
 });
