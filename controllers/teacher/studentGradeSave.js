@@ -5,10 +5,11 @@ dotenv.config()
 const studentGradeSave = async (req, res) => {
     const userInfo = res.locals.UserDecoded
     const classId = req.params.classId
-    const data = req.body || []
-
+    const data = req.body
     if (data.length > 0) {
+        const gradeChangeStudent = data.map(() =>)
         res.status(200).json(data)
+        console.log(data);
 
         // const connection = await mysqlConnection('online_grade_ip')
         // await connection.query(`SELECT student_id,
@@ -44,7 +45,7 @@ const studentGradeSave = async (req, res) => {
         //     })
         // await connection.end()
     } else {
-        res.status(400).json(req.body)
+        res.status(400).json('')
     }
 }
 
