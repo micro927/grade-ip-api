@@ -139,7 +139,7 @@ const verifyMiddleware = (req, res, next) => {
     catch (err) {
         err.isAuthorized = false
         res.status(401).json(JSON.stringify(err))
-        console.log(JSON.stringify(err))
+        console.log('verifyMiddleware', JSON.stringify(err))
     }
 }
 
