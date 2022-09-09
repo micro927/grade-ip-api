@@ -2,6 +2,8 @@ import mysql from 'mysql2'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
+const mysql2 = mysql
+
 async function mysqlConnection(dbName = process.env.DB_NAME) {
     const pool = mysql.createPool({
         host: process.env.DB_HOST,
@@ -17,4 +19,4 @@ async function mysqlConnection(dbName = process.env.DB_NAME) {
     return pool.promise()
 }
 
-export default mysqlConnection
+export { mysql2, mysqlConnection }

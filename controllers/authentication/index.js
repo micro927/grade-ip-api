@@ -148,7 +148,7 @@ const checkUserToken = (req, res) => {
         const AppAuthorization = req.headers.authorization ?? false
         const AppToken = AppAuthorization ? AppAuthorization.split(" ")[1] : 'failed'
         const UserDecoded = jwt.verify(AppToken, process.env.JWT_SECRET)
-        console.log(UserDecoded.cmuitaccount_name);
+        // console.log(UserDecoded.cmuitaccount_name);
         res.status(200).json({
             isAuthorized: true,
             cmuitaccount_name: UserDecoded.cmuitaccount_name,
