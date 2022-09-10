@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 router
     .get('/courselist', courseList)
     .get('/coursedetail/:classId', courseDetail)
-    .get('/fill/:classId', studentGradeList)
+    .get('/studentlist/:classId', studentGradeList)
     .post('/save/:classId', studentGradeSave)
 
 
