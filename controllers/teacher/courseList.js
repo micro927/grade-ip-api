@@ -7,9 +7,13 @@ const courseList = async (req, res) => {
     const gradeType = req.query.gradeType
     const connection = await mysqlConnection('online_grade_ip')
     await connection.query(`SELECT * FROM
-                            (SELECT class_id, 'inList' class_type,semester,year,courseno,seclec,seclab,ip_type,yearly,bulletin_id FROM tbl_class WHERE courseno IN (:courseList)
+                            (SELECT class_id, 'inList' class_type,semester,year,courseno,seclec,seclab,ip_type,yearly,bulletin_id,
+                            IF(deptuser_submit_itaccountname IS NULL,'wait_dept',IF(facuser_submit_itaccountname IS NULL,'wait_fac',IF(deliver_id IS NULL,'wait_deliver',IF(reg_submit_itaccountname IS NULL,'wait_reg','complete')))) submit_status
+                            FROM tbl_class WHERE courseno IN (:courseList)
                             UNION
-                            SELECT class_id, 'teach' class_type,semester,year,courseno,seclec,seclab,ip_type,yearly,bulletin_id FROM tbl_class WHERE instructor_id IN(:instructorId)) main
+                            SELECT class_id, 'teach' class_type,semester,year,courseno,seclec,seclab,ip_type,yearly,bulletin_id,
+                            IF(deptuser_submit_itaccountname IS NULL,'wait_dept',IF(facuser_submit_itaccountname IS NULL,'wait_fac',IF(deliver_id IS NULL,'wait_deliver',IF(reg_submit_itaccountname IS NULL,'wait_reg','complete')))) submit_status
+                            FROM tbl_class WHERE instructor_id IN(:instructorId)) main
                             LEFT JOIN (SELECT bulletin_id,TRIM(title_short_en) course_title FROM db_center.tbl_bulletin) bulletin
                             USING(bulletin_id)
                             JOIN
