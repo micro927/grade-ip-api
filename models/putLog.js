@@ -1,8 +1,8 @@
 import { mysqlConnection } from "../connection/mysql.js"
 
 const putLogFill = async (classId, fillAmount, fillMethod, fillItaccountname) => {
-    const isValidFillAmount = fillAmount.isInteger()
-    const isValidFillMethod = fillMethod == 'fill' || fillMethod == 'excel'
+    const isValidFillAmount = fillAmount == parseInt(fillAmount)
+    const isValidFillMethod = fillMethod == parseInt(fillMethod) && (fillMethod == 1 || fillMethod == 2)
     if (isValidFillAmount && isValidFillMethod) {
 
         const logData = {
@@ -26,7 +26,7 @@ const putLogFill = async (classId, fillAmount, fillMethod, fillItaccountname) =>
         await connection.end()
     }
     else {
-        console.log("putLogFill ERROR: PARAM");
+        console.log("putLogFill ERROR: PARAM", fillAmount);
         return 0
     }
 }

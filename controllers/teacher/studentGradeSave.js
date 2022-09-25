@@ -1,9 +1,12 @@
 import * as dotenv from 'dotenv'
 import { mysql2, mysqlConnection } from '../../connection/mysql.js'
+import { putLogFill } from '../../models/putLog.js'
 dotenv.config()
 
 const studentGradeSave = async (req, res) => {
     const userInfo = res.locals.UserDecoded
+    const courseList = userInfo.courseList
+    const cmuitaccountName = userInfo.cmuitaccount_name
     const classId = req.params.classId
     const data = req.body
 
@@ -17,19 +20,27 @@ const studentGradeSave = async (req, res) => {
                                         fill_datetime = NOW()
                                         WHERE student_id = ?
                                         AND class_id = ?
-                                        AND LEFT(enroll_status,2) = '1_' ;`,
-                [student.edit_grade, student.edit_by, student.student_id, classId]
+                                        AND LEFT(enroll_status,2) = '1_'
+                                        AND courseno IN (?);`,
+                [
+                    student.edit_grade,
+                    student.edit_by,
+                    student.student_id,
+                    classId,
+                    courseList,
+                ]
             )
         })
-        ////// เหลือเช็ควิชา กับ userInfo/courselist ใน jwt
         if (queries != '') {
+            let affectedRows = 0
             const connection = await mysqlConnection('online_grade_ip')
             await connection.query(queries)
-                .then(([rows]) => {
-                    console.log('affectedRows', rows.affectedRows)
-                    res.status(200).json({
+                .then(async ([rows]) => {
+                    affectedRows = await rows?.affectedRows || rows?.length || 0
+                    await putLogFill(classId, affectedRows, 1, cmuitaccountName)
+                    await res.status(200).json({
                         status: 'ok',
-                        affectedRows: rows.affectedRows
+                        affectedRows
                     })
                 })
                 .catch((error) => {
