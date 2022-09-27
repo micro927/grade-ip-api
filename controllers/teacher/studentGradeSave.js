@@ -4,30 +4,35 @@ import { putLogFill } from '../../models/putLog.js'
 dotenv.config()
 
 const studentGradeSave = async (req, res) => {
-    const userInfo = res.locals.UserDecoded
-    const courseList = userInfo.courseList
-    const cmuitaccountName = userInfo.cmuitaccount_name
-    const classId = req.params.classId
+    const { instructorId, courseList, cmuitaccount_name } = res.locals.UserDecoded
+    const { classId } = req.params
     const data = req.body
 
-    if (data.length > 0) {
+    if (data?.length > 0) {
         const gradeChangeStudent = data.filter((student) => student.edit_datetime == '*กำลังแก้ไข*')
         let queries = ''
         gradeChangeStudent.map((student) => {
-            queries += mysql2.format(`UPDATE tbl_student_grade JOIN tbl_class USING(class_id) SET
+            queries += mysql2.format(`UPDATE tbl_student_grade 
+                                        JOIN tbl_class USING(class_id) 
+                                        JOIN db_center.tbl_grade USING(grade_id) 
+                                        SET
                                         grade_new = ?, 
                                         fill_itaccountname = ?,
                                         fill_datetime = NOW()
                                         WHERE student_id = ?
                                         AND class_id = ?
                                         AND LEFT(enroll_status,2) = '1_'
-                                        AND courseno IN (?);`,
+                                        AND (courseno IN (?) OR instructor_id = ?)
+                                        AND grade_accept LIKE ?
+                                        ;`,
                 [
                     student.edit_grade,
                     student.edit_by,
                     student.student_id,
                     classId,
                     courseList,
+                    instructorId,
+                    `%${student.edit_grade}%`,
                 ]
             )
         })
@@ -37,23 +42,23 @@ const studentGradeSave = async (req, res) => {
             await connection.query(queries)
                 .then(async ([rows]) => {
                     affectedRows = await rows?.affectedRows || rows?.length || 0
-                    await putLogFill(classId, affectedRows, 1, cmuitaccountName)
+                    await putLogFill(classId, affectedRows, 1, cmuitaccount_name)
                     await res.status(200).json({
                         status: 'ok',
                         affectedRows
                     })
                 })
                 .catch((error) => {
-                    res.status(500)
+                    res.status(500).json({ status: 'connection error' })
                     console.log("mysqlConnection ERROR: ", error);
                 })
             await connection.end()
         }
         else {
-            res.status(400).json('no update')
+            res.status(403).json({ status: 'no update' })
         }
     } else {
-        res.status(400).json('no data')
+        res.status(400).json({ status: 'no data' })
     }
 }
 

@@ -3,8 +3,8 @@ import { mysqlConnection } from '../../connection/mysql.js'
 dotenv.config()
 
 const courseList = async (req, res) => {
-    const userInfo = res.locals.UserDecoded
-    const gradeType = req.query.gradeType
+    const { instructorId, courseList } = res.locals.UserDecoded
+    const { gradeType } = req.query
     const connection = await mysqlConnection('online_grade_ip')
     await connection.query(`SELECT * FROM
                             (SELECT class_id, 'inList' class_type,semester,year,courseno,seclec,seclab,ip_type,yearly,bulletin_id,
@@ -18,11 +18,11 @@ const courseList = async (req, res) => {
                             USING(bulletin_id)
                             JOIN
                             (SELECT class_id,COUNT(*) all_student ,COUNT(CASE WHEN(grade_new IS NOT NULL) THEN 1 END) filled_student FROM tbl_student_grade GROUP BY class_id) student
-                            USING(class_id) WHERE ip_type = :ip_type`,
+                            USING(class_id) WHERE ip_type = :gradeType`,
         {
-            courseList: userInfo.courseList,
-            instructorId: userInfo.instructorId,
-            ip_type: gradeType
+            courseList,
+            instructorId,
+            gradeType
         }
     )
         .then(([rows]) => {

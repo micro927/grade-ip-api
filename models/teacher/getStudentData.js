@@ -1,4 +1,4 @@
-import { mysqlConnection } from "../connection/mysql.js"
+import { mysqlConnection } from "../../connection/mysql.js"
 
 const getStudentData = async (classId, instructorId, courseList) => {
     let result = {

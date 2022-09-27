@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import getStudentData from '../../models/getStudentData.js'
+import getStudentData from '../../models/teacher/getStudentData.js'
 dotenv.config()
 
 const studentGradeList = async (req, res) => {

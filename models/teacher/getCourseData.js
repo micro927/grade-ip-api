@@ -1,4 +1,4 @@
-import { mysqlConnection } from "../connection/mysql.js"
+import { mysqlConnection } from "../../connection/mysql.js"
 
 const getCourseData = async (classId, instructorId, courseList) => {
     let result = {
@@ -17,9 +17,9 @@ const getCourseData = async (classId, instructorId, courseList) => {
                             USING(courseno,bulletin_id) 
                             WHERE class_id = :classId AND(tbl_class.courseno IN (:courseList) OR instructor_id IN(:instructorId)) LIMIT 1`,
         {
-            classId: classId,
-            instructorId: instructorId,
-            courseList: courseList,
+            classId,
+            instructorId,
+            courseList,
         }
     )
         .then(([rows]) => {

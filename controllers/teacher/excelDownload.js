@@ -1,7 +1,7 @@
 import writeXlsxFile from "write-excel-file/node"
 import * as dotenv from 'dotenv'
-import getStudentData from '../../models/getStudentData.js'
-import getCourseData from '../../models/getCourseData.js'
+import getStudentData from '../../models/teacher/getStudentData.js'
+import getCourseData from '../../models/teacher/getCourseData.js'
 
 dotenv.config()
 
