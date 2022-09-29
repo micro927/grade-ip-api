@@ -2,15 +2,20 @@ import * as dotenv from 'dotenv'
 import { mysqlConnection } from '../../connection/mysql.js'
 dotenv.config()
 
-const courseList = async (req, res) => {
+const courseForDeliverList = async (req, res) => {
     const { courseList, role } = res.locals.UserDecoded
     const { gradeType } = req.query
-    if (role >= 2) {
+    if (role >= 3) {
         const connection = await mysqlConnection('online_grade_ip')
-        await connection.query(`SELECT *,
-                            IF(filled_student = 0,0,IF(deptuser_submit_itaccountname IS NULL,1,IF(facuser_submit_itaccountname IS NULL,2,IF(deliver_id IS NULL,3,IF(reg_submit_itaccountname IS NULL,4,5))))) submit_status 
+        await connection.query(`SELECT *
                             FROM
-                            (SELECT * FROM tbl_class WHERE courseno IN (:courseList)) tbl_class
+                            (SELECT * FROM tbl_class 
+                                WHERE courseno IN (:courseList)
+                                AND submission_id IS NOT NULL
+                                AND deptuser_submit_itaccountname IS NOT NULL
+                                AND facuser_submit_itaccountname IS NOT NULL
+                                AND ip_type = :gradeType
+                                ) tbl_class
                             LEFT JOIN (SELECT bulletin_id,TRIM(title_short_en) course_title FROM db_center.tbl_bulletin) bulletin
                             USING(bulletin_id)
                             JOIN
@@ -18,8 +23,8 @@ const courseList = async (req, res) => {
                                     COUNT(*) all_student,
                                     COUNT(CASE WHEN(grade_new IS NOT NULL) THEN 1 END) filled_student
                                     FROM tbl_student_grade GROUP BY class_id) student
-                            USING(class_id) WHERE ip_type = :gradeType
-                            ORDER BY FIELD(submit_status,1,2,3,4,5,0), year DESC,semester DESC,courseno,seclec,seclab`,
+                            USING(class_id)
+                            ORDER BY class_id`,
             {
                 courseList,
                 gradeType
@@ -41,8 +46,8 @@ const courseList = async (req, res) => {
     }
     else {
         res.status(400).json({ status: 'not valid' })
-        console.log("courselist notvalid");
+        console.log("coursefordeliverlist notvalid");
     }
 }
 
-export default courseList
+export default courseForDeliverList

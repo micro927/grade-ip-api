@@ -12,6 +12,7 @@ const studentGradeSave = async (req, res) => {
         const gradeChangeStudent = data.filter((student) => student.edit_datetime == '*กำลังแก้ไข*')
         let queries = ''
         gradeChangeStudent.map((student) => {
+            const gradeNew = student.edit_grade == '' ? null : student.edit_grade
             queries += mysql2.format(`UPDATE tbl_student_grade 
                                         JOIN tbl_class USING(class_id) 
                                         JOIN db_center.tbl_grade USING(grade_id) 
@@ -24,9 +25,10 @@ const studentGradeSave = async (req, res) => {
                                         AND LEFT(enroll_status,2) = '1_'
                                         AND (courseno IN (?) OR instructor_id = ?)
                                         AND grade_accept LIKE ?
+                                        AND last_date > NOW()
                                         ;`,
                 [
-                    student.edit_grade,
+                    gradeNew,
                     student.edit_by,
                     student.student_id,
                     classId,
