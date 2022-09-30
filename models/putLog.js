@@ -96,7 +96,44 @@ const putLogFacUserSubmit = async (classId, submissionId, action, facUserItaccou
     }
 }
 
-const putLogDeliver = () => { }
+const putLogDeliver = async (deliverId, facultyId, classAmount, status, itaccountName) => {
+    const isValidStatus = status == 0 || status == 1
+    const isValidDeliverId = deliverId.length == 64
+    const isValidclassAmount = classAmount > 0
+
+    if (isValidStatus && isValidDeliverId && isValidclassAmount) {
+        const logData = {
+            deliverId,
+            facultyId,
+            classAmount,
+            status,
+            itaccountName
+        }
+
+        const connection = await mysqlConnection('online_grade_ip')
+        await connection.query(
+            `
+                INSERT INTO tbl_log_deliver VALUES(:deliverId,:facultyId,:classAmount,:status,:itaccountName,NOW(),NULL,NULL)
+                ON DUPLICATE KEY UPDATE status = :status , facuser_cancel_itaccountname = :itaccountName, facuser_cancel_datetime = NOW()
+            `,
+            logData
+        )
+            .then(([rows]) => {
+                return rows.affectedRows
+            })
+            .catch((error) => {
+                console.log("putLogDeliver ERROR: " + error?.sqlMessage);
+                return 0
+            })
+        await connection.end()
+    }
+    else {
+        console.log("putLogDeliver ERROR: PARAM");
+        return 0
+    }
+}
+
+
 const putLogRegSubmit = () => { }
 
 export { putLogFill, putLogDeptUserSubmit, putLogFacUserSubmit, putLogDeliver, putLogRegSubmit }
