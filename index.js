@@ -13,7 +13,10 @@ const app = express()
 //starting config
 app.use(cors('*'))
 app.use(bodyParser.json())
+// app.use(bodyParser.json({ limit: '50mb' }));
+// app.use(bodyParser.urlencoded({ extended: false }));
 app.get("/", (req, res) => res.status(400).json('HELLO MARS')) // should disable on production.
+
 
 // for authentication
 app.get('/login', login)

@@ -2,7 +2,7 @@ import { mysqlConnection } from "../../connection/mysql.js"
 
 const getCourseData = async (classId, instructorId, courseList) => {
     let result = {
-        status: true,
+        status: false,
         content: null
     }
     const connection = await mysqlConnection('online_grade_ip')
@@ -23,10 +23,12 @@ const getCourseData = async (classId, instructorId, courseList) => {
         }
     )
         .then(([rows]) => {
-            result.content = rows.length > 0 ? rows[0] : {}
+            if (rows.length > 0) {
+                result.status = true
+                result.content = rows[0]
+            }
         })
         .catch((error) => {
-            result.status = false
             result.content = "getCourseData ERROR: " + error?.sqlMessage || 'API error'
             console.log(result.content);
         })
