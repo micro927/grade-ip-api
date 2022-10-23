@@ -30,7 +30,15 @@ const courseForDeliverList = async (req, res) => {
                 gradeType
             }
         )
-            .then(([rows]) => {
+            .then(async ([rows]) => {
+                // await connection.query(`SELECT tbl_log_deliver.* FROM tbl_log_deliver
+                //                                     LEFT JOIN (SELECT DISTINCT(deliver_id) FROM tbl_class
+                //                                         WHERE courseno IN (:courseList)
+                //                                         AND course_faculty_id = ?
+                //                                         AND facuser_submit_itaccountname IS NOT NULL
+                //                                         AND deliver_id IS NOT NULL
+                //                                         )`).then()
+                // DB problem, how to know what class in aborted deliver ?????
                 if (rows.length > 0) {
                     res.status(200).json(rows)
                 }
