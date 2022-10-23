@@ -114,7 +114,7 @@ const putLogDeliver = async (deliverId, facultyId, classAmount, status, itaccoun
         await connection.query(
             `
                 INSERT INTO tbl_log_deliver VALUES(:deliverId,:facultyId,:classAmount,:status,:itaccountName,NOW(),NULL,NULL)
-                ON DUPLICATE KEY UPDATE status = :status , facuser_cancel_itaccountname = :itaccountName, facuser_cancel_datetime = NOW()
+                ON DUPLICATE KEY UPDATE status = :status , facuser_cancel_itaccountname = IF(:status = 0,:itaccountName,NULL), facuser_cancel_datetime = IF(:status = 0,NOW(),NULL)
             `,
             logData
         )
