@@ -31,16 +31,23 @@ const courseForDeliverList = async (req, res) => {
             }
         )
             .then(async ([rows]) => {
-                // await connection.query(`SELECT tbl_log_deliver.* FROM tbl_log_deliver
-                //                                     LEFT JOIN (SELECT DISTINCT(deliver_id) FROM tbl_class
-                //                                         WHERE courseno IN (:courseList)
-                //                                         AND course_faculty_id = ?
-                //                                         AND facuser_submit_itaccountname IS NOT NULL
-                //                                         AND deliver_id IS NOT NULL
-                //                                         )`).then()
-                // DB problem, how to know what class in aborted deliver ?????
+                let result = {}
                 if (rows.length > 0) {
-                    res.status(200).json(rows)
+                    await connection.query(`SELECT tbl_log_deliver.* FROM tbl_log_deliver
+                                                    LEFT JOIN (SELECT DISTINCT(deliver_id) deliver_id FROM tbl_class
+                                                        WHERE courseno IN (:courseList)
+                                                        AND ip_type = :gradeType
+                                                        AND facuser_submit_itaccountname IS NOT NULL
+                                                        AND deliver_id IS NOT NULL
+                                                        ) a USING(deliver_id) ORDER BY tbl_log_deliver.facuser_deliver_datetime DESC`, {
+                        courseList,
+                        gradeType
+                    })
+                        .then(([rows]) => {
+                            result.deliverIdList = rows
+                        })
+                    result.courseForDeliverList = rows
+                    res.status(200).json(result)
                 }
                 else {
                     res.status(200).json([])
@@ -48,7 +55,7 @@ const courseForDeliverList = async (req, res) => {
             })
             .catch((error) => {
                 res.status(500)
-                console.log("mysqlConnection ERROR: ", error.code);
+                console.log("mysqlConnection ERROR: ", error);
             })
         await connection.end()
     }

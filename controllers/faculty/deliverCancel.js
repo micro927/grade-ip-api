@@ -3,7 +3,7 @@ import { mysqlConnection } from '../../connection/mysql.js'
 import { putLogDeliver } from '../../models/putLog.js'
 dotenv.config()
 
-const courseSubmitCancel = async (req, res) => {
+const deliverCancel = async (req, res) => {
     const { courseList, cmuitaccount_name, role } = res.locals.UserDecoded
     const { deliverId } = req.params || {}
     const facultyId = req.body?.facultyId || 0
@@ -46,4 +46,4 @@ const courseSubmitCancel = async (req, res) => {
     }
 }
 
-export default courseSubmitCancel
+export default deliverCancel

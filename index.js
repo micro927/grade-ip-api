@@ -6,6 +6,7 @@ import { login, checkUserToken, verifyMiddleware } from './controllers/authentic
 import teacherRoutes from './routes/teacher.js'
 import departmentRoutes from './routes/department.js'
 import facultyRoutes from './routes/faculty.js'
+import adminRoutes from './routes/admin.js'
 
 dotenv.config()
 const app = express()
@@ -26,6 +27,7 @@ app.get('/checkusertoken', checkUserToken)
 app.use('/teacher', verifyMiddleware, teacherRoutes)
 app.use('/department', verifyMiddleware, departmentRoutes)
 app.use('/faculty', verifyMiddleware, facultyRoutes)
+app.use('/admin', verifyMiddleware, adminRoutes)
 
 
 // default error response

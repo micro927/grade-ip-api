@@ -96,7 +96,7 @@ const putLogFacUserSubmit = async (classId, submissionId, action, facUserItaccou
     }
 }
 
-const putLogDeliver = async (deliverId, facultyId, classAmount, status, itaccountName) => {
+const putLogDeliver = async (deliverId, facultyId, classAmount, status, itaccountName, classDeliverListText = '', gradeType = '') => {
     const isValidStatus = status == 0 || status == 1
     const isValidDeliverId = deliverId.length == 64
     const isValidclassAmount = classAmount > 0
@@ -106,14 +106,16 @@ const putLogDeliver = async (deliverId, facultyId, classAmount, status, itaccoun
             deliverId,
             facultyId,
             classAmount,
+            gradeType,
             status,
-            itaccountName
+            itaccountName,
+            classDeliverListText
         }
 
         const connection = await mysqlConnection('online_grade_ip')
         await connection.query(
             `
-                INSERT INTO tbl_log_deliver VALUES(:deliverId,:facultyId,:classAmount,:status,:itaccountName,NOW(),NULL,NULL)
+                INSERT INTO tbl_log_deliver VALUES(:deliverId,:facultyId,:classAmount,:gradeType,:status,:itaccountName,NOW(),NULL,NULL,:classDeliverListText)
                 ON DUPLICATE KEY UPDATE status = :status , facuser_cancel_itaccountname = IF(:status = 0,:itaccountName,NULL), facuser_cancel_datetime = IF(:status = 0,NOW(),NULL)
             `,
             logData

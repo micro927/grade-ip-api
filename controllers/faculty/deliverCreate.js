@@ -6,11 +6,12 @@ dotenv.config()
 
 const deliverCreate = async (req, res) => {
     const { courseList, cmuitaccount_name, role } = res.locals.UserDecoded
+    const { gradeType } = req.query
     const classIdList = req.body?.classIdList || []
     const facultyId = req.body?.facultyId || 0
     const isclassIdListVerify = classIdList.length > 0 && (classIdList.filter(classId => classId.length == 19).length == classIdList.length)
 
-    // console.log(classIdList);
+    console.log(gradeType);
     // console.log(facultyId);
     // res.json({
     //     classIdList,
@@ -51,7 +52,8 @@ const deliverCreate = async (req, res) => {
             await connection.query(queries)
                 .then(async ([rows]) => {
                     affectedRows = await rows?.affectedRows || rows?.length || 0
-                    await putLogDeliver(deliverIdNew, facultyId, affectedRows, 1, cmuitaccount_name)
+                    const classDeliverListText = classIdList.join()
+                    await putLogDeliver(deliverIdNew, facultyId, affectedRows, 1, cmuitaccount_name, classDeliverListText, gradeType)
                     await res.status(200).json({
                         status: 'ok',
                         affectedRows

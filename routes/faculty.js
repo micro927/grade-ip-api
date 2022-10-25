@@ -4,6 +4,7 @@ import courseSubmit from '../controllers/faculty/courseSubmit.js'
 import courseSubmitCancel from '../controllers/faculty/courseSubmitCancel.js'
 import courseForDeliverList from '../controllers/faculty/courseForDeliverList.js'
 import deliverCreate from '../controllers/faculty/deliverCreate.js'
+import deliverCancel from '../controllers/faculty/deliverCancel.js'
 
 const router = express.Router()
 router.get('/', (req, res) => {
@@ -16,5 +17,6 @@ router
     .post('/submitcancel/:classId', courseSubmitCancel)
     .get('/coursefordeliverlist', courseForDeliverList)
     .post('/delivercreate', deliverCreate)
+    .post('/delivercancel/:deliverId', deliverCancel)
 
 export default router
