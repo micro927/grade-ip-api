@@ -33,13 +33,15 @@ const courseForDeliverList = async (req, res) => {
             .then(async ([rows]) => {
                 let result = {}
                 if (rows.length > 0) {
-                    await connection.query(`SELECT tbl_log_deliver.* FROM tbl_log_deliver
+                    await connection.query(`SELECT tbl_log_deliver.*,tbl_log_reg_submit.reg_submit_itaccountname,tbl_log_reg_submit.reg_submit_datetime FROM tbl_log_deliver
                                                     LEFT JOIN (SELECT DISTINCT(deliver_id) deliver_id FROM tbl_class
                                                         WHERE courseno IN (:courseList)
                                                         AND ip_type = :gradeType
                                                         AND facuser_submit_itaccountname IS NOT NULL
                                                         AND deliver_id IS NOT NULL
-                                                        ) a USING(deliver_id) ORDER BY tbl_log_deliver.facuser_deliver_datetime DESC`, {
+                                                        ) a USING(deliver_id)
+                                                        LEFT JOIN tbl_log_reg_submit USING(deliver_id)
+                                                        ORDER BY tbl_log_deliver.facuser_deliver_datetime DESC`, {
                         courseList,
                         gradeType
                     })

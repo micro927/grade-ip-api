@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv'
 import { mysqlConnection } from '../../connection/mysql.js'
 dotenv.config()
-
 const courseForVerifyList = async (req, res) => {
     const { role } = res.locals.UserDecoded
-    const { gradeType } = req.query
-    if (role >= 9) {
+    const { gradeType, deliverRowLimit } = req.query
+    const isDeliverRowLimitValid = Number.isInteger(parseInt(deliverRowLimit))
+    if (role >= 9 && isDeliverRowLimitValid) {
         const connection = await mysqlConnection('online_grade_ip')
         await connection.query(`SELECT *
                             FROM
@@ -17,7 +17,8 @@ const courseForVerifyList = async (req, res) => {
                                 ) tbl_class
                             LEFT JOIN (SELECT bulletin_id,TRIM(title_short_en) course_title FROM db_center.tbl_bulletin) bulletin
                             USING(bulletin_id)
-                            ORDER BY reg_submit_datetime DESC`,
+                            ORDER BY reg_submit_datetime DESC
+                            LIMIT ${deliverRowLimit}`,
             {
                 gradeType
             }
@@ -38,7 +39,7 @@ const courseForVerifyList = async (req, res) => {
     }
     else {
         res.status(400).json({ status: 'not valid' })
-        console.log("courseforverifylist notvalid");
+        console.log("notvalid");
     }
 }
 

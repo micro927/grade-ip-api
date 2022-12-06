@@ -98,7 +98,7 @@ const putLogFacUserSubmit = async (classId, submissionId, action, facUserItaccou
 
 const putLogDeliver = async (deliverId, facultyId, classAmount, status, itaccountName, classDeliverListText = '', gradeType = '') => {
     const isValidStatus = status == 0 || status == 1
-    const isValidDeliverId = deliverId.length == 64
+    const isValidDeliverId = deliverId.length == 32
     const isValidclassAmount = classAmount > 0
 
     if (isValidStatus && isValidDeliverId && isValidclassAmount) {
@@ -138,7 +138,7 @@ const putLogDeliver = async (deliverId, facultyId, classAmount, status, itaccoun
 
 const putLogRegSubmit = async (deliverId, action, regItaccountname) => {
     const isValidAction = action == 's' || action == 'c'
-    const isValidDeliverId = deliverId.length == 64
+    const isValidDeliverId = deliverId.length == 32
 
     if (isValidAction && isValidDeliverId) {
         const logData = {
@@ -149,7 +149,7 @@ const putLogRegSubmit = async (deliverId, action, regItaccountname) => {
 
         const connection = await mysqlConnection('online_grade_ip')
         await connection.query(
-            `INSERT INTO tbl_log_facuser_submit VALUES(NULL,:deliverId,:action,:regItaccountname,NOW())`,
+            `INSERT INTO tbl_log_reg_submit VALUES(NULL,:deliverId,:action,:regItaccountname,NOW())`,
             logData
         )
             .then(([rows]) => {

@@ -8,7 +8,7 @@ const deliverCancel = async (req, res) => {
     const { deliverId } = req.params || {}
     const facultyId = req.body?.facultyId || 0
 
-    if (deliverId.length == 64 && role >= 3) {
+    if (deliverId.length == 32 && role >= 3) {
         const connection = await mysqlConnection('online_grade_ip')
         await connection.query(`UPDATE tbl_class
                                 SET
@@ -17,7 +17,7 @@ const deliverCancel = async (req, res) => {
                                     facuser_deliver_datetime = NULL
                                 WHERE deliver_id = :deliverId
                                 AND courseno IN (:courseList)
-                                AND course_faculty_id = :facultyId
+                                AND (course_faculty_id = :facultyId  OR :facultyId = 52)
                                 AND deliver_id IS NOT NULL
                                 AND facuser_deliver_itaccountname IS NOT NULL
                                 AND reg_submit_itaccountname IS NULL

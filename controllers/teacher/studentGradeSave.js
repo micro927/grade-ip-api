@@ -43,7 +43,15 @@ const studentGradeSave = async (req, res) => {
             const connection = await mysqlConnection('online_grade_ip')
             await connection.query(queries)
                 .then(async ([rows]) => {
-                    affectedRows = await rows?.affectedRows || rows?.length || 0
+                    if (typeof rows.affectedRows == 'number') {
+                        affectedRows = rows.affectedRows
+                    }
+                    else if (rows.length > 1) {
+                        const sumaffectedRows = rows.reduce((prevAffectedRow, row) => {
+                            return prevAffectedRow + row.affectedRows
+                        }, 0)
+                        affectedRows = sumaffectedRows
+                    }
                     await putLogFill(classId, affectedRows, 1, cmuitaccount_name)
                     await res.status(200).json({
                         status: 'ok',

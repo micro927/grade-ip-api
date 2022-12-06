@@ -5,9 +5,10 @@ dotenv.config()
 
 const submit = async (req, res) => {
     const { cmuitaccount_name, role } = res.locals.UserDecoded
-    const { deliverId } = req.params || {}
+    const { deliverId } = req.body || {}
 
-    if (deliverId?.length == 64 && role >= 9) {
+
+    if (deliverId?.length == 32 && role >= 9) {
         const datetime = new Date()
         const connection = await mysqlConnection('online_grade_ip')
         await connection.query(`UPDATE tbl_class
@@ -28,7 +29,9 @@ const submit = async (req, res) => {
             }
         ).then(async ([rows]) => {
             const affectedRows = await rows?.affectedRows || 0
-            await putLogRegSubmit(deliverId, 's', cmuitaccount_name)
+            if (affectedRows > 0) {
+                await putLogRegSubmit(deliverId, 's', cmuitaccount_name)
+            }
             await res.status(200).json({
                 status: 'ok',
                 affectedRows
@@ -40,7 +43,7 @@ const submit = async (req, res) => {
         await connection.end()
     }
     else {
-        res.status(400).json({ status: 'not valid' })
+        res.status(400).json({ status: role })
         console.log("notvalid");
     }
 }

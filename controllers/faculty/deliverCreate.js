@@ -20,7 +20,7 @@ const deliverCreate = async (req, res) => {
     if (isclassIdListVerify && role >= 3) {
         const datetime = new Date()
         const countClassIdList = classIdList.length
-        const deliverIdNew = createHash('sha256')
+        const deliverIdNew = createHash('md5')
             .update(`deliver ${countClassIdList} ${cmuitaccount_name} ${datetime}`)
             .digest('hex');
         let queries = ''
@@ -32,7 +32,7 @@ const deliverCreate = async (req, res) => {
                                     facuser_deliver_datetime = ?
                                 WHERE class_id = ? 
                                 AND courseno IN (?)
-                                AND course_faculty_id = ?
+                                AND (course_faculty_id = ? OR ? = 52)
                                 AND facuser_submit_itaccountname IS NOT NULL
                                 AND deliver_id IS NULL
                                 AND reg_submit_itaccountname IS NULL
@@ -43,6 +43,7 @@ const deliverCreate = async (req, res) => {
                     datetime,
                     classId,
                     courseList,
+                    facultyId,
                     facultyId
                 ])
         })
@@ -51,8 +52,17 @@ const deliverCreate = async (req, res) => {
             const connection = await mysqlConnection('online_grade_ip')
             await connection.query(queries)
                 .then(async ([rows]) => {
-                    affectedRows = await rows?.affectedRows || rows?.length || 0
+                    if (typeof rows.affectedRows == 'number') {
+                        affectedRows = rows.affectedRows
+                    }
+                    else if (rows.length > 1) {
+                        const sumaffectedRows = rows.reduce((prevAffectedRow, row) => {
+                            return prevAffectedRow + row.affectedRows
+                        }, 0)
+                        affectedRows = sumaffectedRows
+                    }
                     const classDeliverListText = classIdList.join()
+                    console.log(facultyId)
                     await putLogDeliver(deliverIdNew, facultyId, affectedRows, 1, cmuitaccount_name, classDeliverListText, gradeType)
                     await res.status(200).json({
                         status: 'ok',
