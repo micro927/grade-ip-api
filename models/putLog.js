@@ -136,6 +136,35 @@ const putLogDeliver = async (deliverId, facultyId, classAmount, status, itaccoun
 }
 
 
-const putLogRegSubmit = () => { }
+const putLogRegSubmit = async (deliverId, action, regItaccountname) => {
+    const isValidAction = action == 's' || action == 'c'
+    const isValidDeliverId = deliverId.length == 64
+
+    if (isValidAction && isValidDeliverId) {
+        const logData = {
+            deliverId,
+            action,
+            regItaccountname
+        }
+
+        const connection = await mysqlConnection('online_grade_ip')
+        await connection.query(
+            `INSERT INTO tbl_log_facuser_submit VALUES(NULL,:deliverId,:action,:regItaccountname,NOW())`,
+            logData
+        )
+            .then(([rows]) => {
+                return rows.affectedRows
+            })
+            .catch((error) => {
+                console.log("putLogRegSubmit ERROR: " + error?.sqlMessage);
+                return 0
+            })
+        await connection.end()
+    }
+    else {
+        console.log("putLogRegSubmit ERROR: PARAM");
+        return 0
+    }
+}
 
 export { putLogFill, putLogDeptUserSubmit, putLogFacUserSubmit, putLogDeliver, putLogRegSubmit }

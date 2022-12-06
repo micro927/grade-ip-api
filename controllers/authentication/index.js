@@ -44,7 +44,7 @@ async function getRole(cmuitaccount_name) {
 }
 
 const login = (req, res) => {
-    var oauthCode = req.query.code
+    const oauthCode = req.query.code
     axios({
         method: "post",
         url: "https://oauth.cmu.ac.th/v1/GetToken.aspx",
@@ -68,15 +68,11 @@ const login = (req, res) => {
             },
         }).then(async (response) => {
             const basicInfo = response.data
-            const cmuitaccount_name = basicInfo.cmuitaccount_name
-            const roleObject = await getRole(cmuitaccount_name)
+            const roleObject = await getRole(basicInfo.cmuitaccount_name)
 
             if (roleObject.status === 200) {
                 try {
-                    basicInfo.role = roleObject.role
-                    // for dev
-                    basicInfo.role = basicInfo.cmuitaccount_name == 'sitthiphon.s' ? 9 : basicInfo.role
-                    // end dev
+                    basicInfo.role = basicInfo.organization_code == '52' ? 9 : roleObject.role // all REG(52) staff granted as admin.
                     basicInfo.instructorId = roleObject.instructorId
                     basicInfo.courseList = roleObject.courselist
                     const userToken = jwt.sign(
@@ -164,4 +160,9 @@ const checkUserToken = (req, res) => {
     return
 }
 
-export { login, checkUserToken, verifyMiddleware }
+const testRole = async (req, res) => {
+    const { cmuitaccount_name } = req.query
+    res.json(await getRole(cmuitaccount_name))
+}
+
+export { login, checkUserToken, verifyMiddleware, testRole }
