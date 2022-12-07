@@ -5,11 +5,13 @@ import { putLogDeliver } from '../../models/putLog.js'
 dotenv.config()
 
 const deliverCreate = async (req, res) => {
-    const { courseList, cmuitaccount_name, role } = res.locals.UserDecoded
     const { gradeType } = req.query
     const classIdList = req.body?.classIdList || []
     const facultyId = req.body?.facultyId || 0
-    const isclassIdListVerify = classIdList.length > 0 && (classIdList.filter(classId => classId.length == 19).length == classIdList.length)
+    const { cmuitaccount_name, role } = res.locals.UserDecoded
+    const { userCourseList } = res.locals
+    const courseList = userCourseList.length > 0 ? userCourseList : ['']
+    const isClassIdListVerify = classIdList.length > 0 && (classIdList.filter(classId => classId.length == 19).length == classIdList.length)
 
     console.log(gradeType);
     // console.log(facultyId);
@@ -17,7 +19,7 @@ const deliverCreate = async (req, res) => {
     //     classIdList,
     //     facultyId
     // })
-    if (isclassIdListVerify && role >= 3) {
+    if (isClassIdListVerify && role >= 3) {
         const datetime = new Date()
         const countClassIdList = classIdList.length
         const deliverIdNew = createHash('md5')

@@ -4,7 +4,7 @@ dotenv.config()
 const courseForVerifyList = async (req, res) => {
     const { role } = res.locals.UserDecoded
     const { gradeType, deliverRowLimit } = req.query
-    const isDeliverRowLimitValid = Number.isInteger(parseInt(deliverRowLimit))
+    const isDeliverRowLimitValid = Number.isInteger(parseInt(deliverRowLimit)) && parseInt(deliverRowLimit) > 0
     if (role >= 9 && isDeliverRowLimitValid) {
         const connection = await mysqlConnection('online_grade_ip')
         await connection.query(`SELECT *

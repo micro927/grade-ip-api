@@ -3,8 +3,10 @@ import { mysqlConnection } from '../../connection/mysql.js'
 dotenv.config()
 
 const courseList = async (req, res) => {
-    const { courseList, role } = res.locals.UserDecoded
     const { gradeType } = req.query
+    const { role } = res.locals.UserDecoded
+    const { userCourseList } = res.locals
+    const courseList = userCourseList.length > 0 ? userCourseList : ['']
     if (role >= 2) {
         const connection = await mysqlConnection('online_grade_ip')
         await connection.query(`SELECT *,

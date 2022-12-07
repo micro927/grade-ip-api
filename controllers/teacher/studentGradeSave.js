@@ -4,9 +4,12 @@ import { putLogFill } from '../../models/putLog.js'
 dotenv.config()
 
 const studentGradeSave = async (req, res) => {
-    const { instructorId, courseList, cmuitaccount_name } = res.locals.UserDecoded
     const { classId } = req.params
     const data = req.body
+
+    const { instructorId, cmuitaccount_name } = res.locals.UserDecoded
+    const { userCourseList } = res.locals
+    const courseList = userCourseList.length > 0 ? userCourseList : ['']
 
     if (data?.length > 0) {
         const gradeChangeStudent = data.filter((student) => student.edit_datetime == '*กำลังแก้ไข*')

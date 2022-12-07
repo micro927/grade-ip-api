@@ -5,6 +5,7 @@ const getCourseData = async (classId, instructorId, courseList) => {
         status: false,
         content: null
     }
+    const courseListForBind = courseList.length > 0 ? courseList : ['']
     const connection = await mysqlConnection('online_grade_ip')
     await connection.query(`SELECT tbl_class.*,
                             course_title,
@@ -15,11 +16,11 @@ const getCourseData = async (classId, instructorId, courseList) => {
                             LEFT JOIN db_center.tbl_instructor USING(instructor_id) 
                             LEFT JOIN (SELECT courseno,bulletin_id,TRIM(title_short_en) course_title FROM db_center.tbl_bulletin) bulletin
                             USING(courseno,bulletin_id) 
-                            WHERE class_id = :classId AND(tbl_class.courseno IN (:courseList) OR instructor_id IN(:instructorId)) LIMIT 1`,
+                            WHERE class_id = :classId AND(tbl_class.courseno IN (:courseListForBind) OR instructor_id IN(:instructorId)) LIMIT 1`,
         {
             classId,
             instructorId,
-            courseList,
+            courseListForBind,
         }
     )
         .then(([rows]) => {

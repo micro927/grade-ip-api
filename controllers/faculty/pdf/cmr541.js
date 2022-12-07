@@ -9,14 +9,14 @@ dotenv.config()
 
 const cmr541 = async (req, res) => {
   const deliverId = req.params.deliverId
-  const { organization_code } = res.locals.UserDecoded
+  const { organization_code, role } = res.locals.UserDecoded
   const facultyId = organization_code
   const thisSemester = process.env.THIS_SEMESTER
   const thisYear = process.env.THIS_YEAR
   const deliverDataObject = await getDeliverData(deliverId, facultyId)
   const deliverSummaryObject = await getDeliverSummary(deliverId, facultyId)
-  if (!deliverDataObject.status || !deliverSummaryObject.status) {
-    res.status(404).json(deliverSummaryObject)
+  if (!deliverDataObject.status || !deliverSummaryObject.status || role < 3) {
+    res.status(404).json(deliverDataObject)
     return
   }
 

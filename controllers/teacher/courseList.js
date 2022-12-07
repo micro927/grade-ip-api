@@ -3,15 +3,17 @@ import { mysqlConnection } from '../../connection/mysql.js'
 dotenv.config()
 
 const courseList = async (req, res) => {
-    const { instructorId, courseList } = res.locals.UserDecoded
     const { gradeType } = req.query
+    const { instructorId } = res.locals.UserDecoded
+    const { userCourseList } = res.locals
+    const courseList = userCourseList.length > 0 ? userCourseList : ['']
     const connection = await mysqlConnection('online_grade_ip')
     await connection.query(`SELECT *,
                             IF(filled_student = 0,0,IF(deptuser_submit_itaccountname IS NULL,1,IF(facuser_submit_itaccountname IS NULL,2,IF(deliver_id IS NULL,3,IF(reg_submit_itaccountname IS NULL,4,5))))) submit_status
                             FROM
                             (SELECT *, 'inList' class_type
                             FROM tbl_class WHERE courseno IN (:courseList)
-                            UNION
+                            UNION ALL
                             SELECT *, 'teach' class_type
                             FROM tbl_class WHERE instructor_id IN(:instructorId)) main
                             LEFT JOIN (SELECT bulletin_id,TRIM(title_short_en) course_title FROM db_center.tbl_bulletin) bulletin

@@ -3,14 +3,15 @@ import { mysqlConnection } from '../../connection/mysql.js'
 dotenv.config()
 
 const courseForDeliverList = async (req, res) => {
-    const { courseList, role } = res.locals.UserDecoded
+    const { organization_code, role } = res.locals.UserDecoded
     const { gradeType } = req.query
+    const facultyId = organization_code
     if (role >= 3) {
         const connection = await mysqlConnection('online_grade_ip')
         await connection.query(`SELECT *
                             FROM
                             (SELECT * FROM tbl_class 
-                                WHERE courseno IN (:courseList)
+                                WHERE (course_faculty_id = :facultyId OR :facultyId = 52)
                                 AND submission_id IS NOT NULL
                                 AND deptuser_submit_itaccountname IS NOT NULL
                                 AND facuser_submit_itaccountname IS NOT NULL
@@ -26,7 +27,7 @@ const courseForDeliverList = async (req, res) => {
                             USING(class_id)
                             ORDER BY class_id`,
             {
-                courseList,
+                facultyId,
                 gradeType
             }
         )
@@ -35,14 +36,14 @@ const courseForDeliverList = async (req, res) => {
                 if (rows.length > 0) {
                     await connection.query(`SELECT tbl_log_deliver.*,tbl_log_reg_submit.reg_submit_itaccountname,tbl_log_reg_submit.reg_submit_datetime FROM tbl_log_deliver
                                                     LEFT JOIN (SELECT DISTINCT(deliver_id) deliver_id FROM tbl_class
-                                                        WHERE courseno IN (:courseList)
+                                                        WHERE (course_faculty_id = :facultyId OR :facultyId = 52)
                                                         AND ip_type = :gradeType
                                                         AND facuser_submit_itaccountname IS NOT NULL
                                                         AND deliver_id IS NOT NULL
                                                         ) a USING(deliver_id)
                                                         LEFT JOIN tbl_log_reg_submit USING(deliver_id)
                                                         ORDER BY tbl_log_deliver.facuser_deliver_datetime DESC`, {
-                        courseList,
+                        facultyId,
                         gradeType
                     })
                         .then(([rows]) => {

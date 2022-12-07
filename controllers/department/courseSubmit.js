@@ -7,8 +7,10 @@ import { putLogDeptUserSubmit } from '../../models/putLog.js'
 dotenv.config()
 
 const courseSubmit = async (req, res) => {
-    const { courseList, cmuitaccount_name, role } = res.locals.UserDecoded
     const { classId } = req.params || {}
+    const { cmuitaccount_name, role } = res.locals.UserDecoded
+    const { userCourseList } = res.locals
+    const courseList = userCourseList.length > 0 ? userCourseList : ['']
 
     if (classId.length == 19 && role >= 2) {
         const connection = await mysqlConnection('online_grade_ip')

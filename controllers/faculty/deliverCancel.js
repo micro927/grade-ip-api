@@ -4,9 +4,11 @@ import { putLogDeliver } from '../../models/putLog.js'
 dotenv.config()
 
 const deliverCancel = async (req, res) => {
-    const { courseList, cmuitaccount_name, role } = res.locals.UserDecoded
     const { deliverId } = req.params || {}
     const facultyId = req.body?.facultyId || 0
+    const { cmuitaccount_name, role } = res.locals.UserDecoded
+    const { userCourseList } = res.locals
+    const courseList = userCourseList.length > 0 ? userCourseList : ['']
 
     if (deliverId.length == 32 && role >= 3) {
         const connection = await mysqlConnection('online_grade_ip')

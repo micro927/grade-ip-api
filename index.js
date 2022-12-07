@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import * as dotenv from 'dotenv'
-import { login, checkUserToken, verifyMiddleware, testRole } from './controllers/authentication/index.js'
+import { login, checkUserToken, verifyMiddleware, testRole, checkCourseListMiddleware } from './controllers/authentication/index.js'
 import teacherRoutes from './routes/teacher.js'
 import departmentRoutes from './routes/department.js'
 import facultyRoutes from './routes/faculty.js'
@@ -12,7 +12,7 @@ dotenv.config()
 const app = express()
 
 //starting config
-app.use(cors('*'))
+app.use(cors('http://localhost:3000'))
 app.use(bodyParser.json())
 // app.use(bodyParser.json({ limit: '50mb' }));
 // app.use(bodyParser.urlencoded({ extended: false }));
@@ -25,10 +25,10 @@ app.get('/testrole', testRole)
 app.get('/checkusertoken', checkUserToken)
 
 // for application function
-app.use('/teacher', verifyMiddleware, teacherRoutes)
-app.use('/department', verifyMiddleware, departmentRoutes)
-app.use('/faculty', verifyMiddleware, facultyRoutes)
-app.use('/admin', verifyMiddleware, adminRoutes)
+app.use('/teacher', verifyMiddleware, checkCourseListMiddleware, teacherRoutes)
+app.use('/department', verifyMiddleware, checkCourseListMiddleware, departmentRoutes)
+app.use('/faculty', verifyMiddleware, checkCourseListMiddleware, facultyRoutes)
+app.use('/admin', verifyMiddleware, checkCourseListMiddleware, adminRoutes)
 
 
 // default error response

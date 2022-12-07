@@ -4,9 +4,11 @@ import { putLogFacUserSubmit } from '../../models/putLog.js'
 dotenv.config()
 
 const courseSubmit = async (req, res) => {
-    const { courseList, cmuitaccount_name, role } = res.locals.UserDecoded
     const { classId } = req.params || {}
     const { submissionId } = req.body || {}
+    const { cmuitaccount_name, role } = res.locals.UserDecoded
+    const { userCourseList } = res.locals
+    const courseList = userCourseList.length > 0 ? userCourseList : ['']
 
     if (classId.length == 19 && submissionId?.length == 64 && role >= 3) {
         const datetime = new Date()

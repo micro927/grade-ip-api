@@ -74,14 +74,12 @@ const login = (req, res) => {
                 try {
                     basicInfo.role = basicInfo.organization_code == '52' ? 9 : roleObject.role // all REG(52) staff granted as admin.
                     basicInfo.instructorId = roleObject.instructorId
-                    basicInfo.courseList = roleObject.courselist
                     const userToken = jwt.sign(
                         {
                             cmuitaccount_name: basicInfo.cmuitaccount_name,
                             role: basicInfo.role,
                             organization_code: basicInfo.organization_code,
                             instructorId: basicInfo.instructorId,
-                            courseList: basicInfo.courseList
                         },
                         process.env.JWT_SECRET
                     )
@@ -140,6 +138,21 @@ const verifyMiddleware = (req, res, next) => {
     }
 }
 
+const checkCourseListMiddleware = async (req, res, next) => {
+    const { cmuitaccount_name } = res.locals.UserDecoded
+    try {
+        const userRoleData = await getRole(cmuitaccount_name)
+        const { courselist } = userRoleData
+        res.locals.userCourseList = courselist
+        next()
+    }
+    catch (err) {
+        err.isAuthorized = false
+        res.status(401).json(err)
+        console.log('checkCourseListMiddleware', JSON.stringify(err))
+    }
+}
+
 const checkUserToken = (req, res) => {
     try {
         const AppAuthorization = req.headers.authorization ?? false
@@ -166,4 +179,4 @@ const testRole = async (req, res) => {
     res.json(await getRole(cmuitaccount_name))
 }
 
-export { login, checkUserToken, verifyMiddleware, testRole }
+export { login, checkUserToken, verifyMiddleware, checkCourseListMiddleware, testRole }

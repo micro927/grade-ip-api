@@ -7,7 +7,10 @@ dotenv.config()
 
 const excelDownload = async (req, res) => {
     const classId = req.params.classId
-    const { instructorId, courseList } = res.locals.UserDecoded
+    const { instructorId } = res.locals.UserDecoded
+    const { userCourseList } = res.locals
+    const courseList = userCourseList.length > 0 ? userCourseList : ['']
+
     const studentDataObject = await getStudentData(classId, instructorId, courseList)
     const courseDataObject = await getCourseData(classId, instructorId, courseList)
 
