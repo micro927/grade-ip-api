@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 
-const cmr541 = async (req, res) => {
+const cmr54 = async (req, res) => {
   const classId = req.params.classId
   const { instructorId, courseList } = res.locals.UserDecoded
   const thisSemester = process.env.THIS_SEMESTER
@@ -93,4 +93,4 @@ ${studentData.map((student, index) => {
 
 }
 
-export default cmr541
+export default cmr54

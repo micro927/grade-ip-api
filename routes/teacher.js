@@ -4,7 +4,7 @@ import courseDetail from '../controllers/teacher/courseDetail.js'
 import studentGradeList from '../controllers/teacher/studentGradeList.js'
 import studentGradeSave from '../controllers/teacher/studentGradeSave.js'
 import excelDownload from '../controllers/teacher/excelDownload.js'
-import cmr541 from '../controllers/teacher/pdf/cmr541.js'
+import cmr54 from '../controllers/teacher/pdf/cmr54.js'
 const router = express.Router()
 
 router.get('/', (req, res) => {
@@ -17,7 +17,7 @@ router
     .get('/studentlist/:classId', studentGradeList)
     .post('/save/:classId', studentGradeSave)
     .get('/exceldownload/:classId', excelDownload)
-    .get('/cmr541/:classId', cmr541)
+    .get('/cmr54/:classId', cmr54)
 
 
 export default router

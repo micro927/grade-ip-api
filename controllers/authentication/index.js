@@ -48,7 +48,7 @@ const login = (req, res) => {
     axios({
         method: "post",
         url: "https://oauth.cmu.ac.th/v1/GetToken.aspx",
-        timeout: 4000, // 4 seconds timeout
+        timeout: 10000, // 10 seconds timeout
         params: {
             code: oauthCode,
             redirect_uri: process.env.APP_REDIRECT,
@@ -79,6 +79,7 @@ const login = (req, res) => {
                         {
                             cmuitaccount_name: basicInfo.cmuitaccount_name,
                             role: basicInfo.role,
+                            organization_code: basicInfo.organization_code,
                             instructorId: basicInfo.instructorId,
                             courseList: basicInfo.courseList
                         },
