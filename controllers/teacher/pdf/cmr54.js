@@ -7,7 +7,9 @@ dotenv.config()
 
 const cmr54 = async (req, res) => {
   const classId = req.params.classId
-  const { instructorId, courseList } = res.locals.UserDecoded
+  const { instructorId } = res.locals.UserDecoded
+  const { userCourseList } = res.locals
+  const courseList = userCourseList.length > 0 ? userCourseList : ['']
   const thisSemester = process.env.THIS_SEMESTER
   const thisYear = process.env.THIS_YEAR
   const studentDataObject = await getStudentData(classId, instructorId, courseList)
