@@ -2,35 +2,43 @@ import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import * as dotenv from 'dotenv'
-import coursesRoutes from './routes/courses.js'
-import authenticationRoutes from './routes/authentication.js'
-import prepareRoutes from './routes/prepare.js'
+import { login, checkUserToken, verifyMiddleware, testRole, checkCourseListMiddleware } from './controllers/authentication/index.js'
+import teacherRoutes from './routes/teacher.js'
+import departmentRoutes from './routes/department.js'
+import facultyRoutes from './routes/faculty.js'
+import adminRoutes from './routes/admin.js'
 
 dotenv.config()
 const app = express()
-app.use(cors('*'))
+
+//starting config
+app.use(cors('http://localhost:3000'))
 app.use(bodyParser.json())
-app.get("/", (req, res) => res.status(401).json("Unauthorized"))
+// app.use(bodyParser.json({ limit: '50mb' }));
+// app.use(bodyParser.urlencoded({ extended: false }));
+app.get("/", (req, res) => res.status(400).json('HELLO MARS')) // should disable on production.
 
 
-const abc = (req, res, next) => {
-    const a = req.query
-    const islogin = false
-    if (islogin) {
-        next()
-    }
-    else {
-        res.status(200).json(a)
-    }
-}
+// for authentication
+app.get('/login', login)
+app.get('/testrole', testRole)
+app.get('/checkusertoken', checkUserToken)
 
-app.use('/', authenticationRoutes)
+// for application function
+app.use('/teacher', verifyMiddleware, checkCourseListMiddleware, teacherRoutes)
+app.use('/department', verifyMiddleware, checkCourseListMiddleware, departmentRoutes)
+app.use('/faculty', verifyMiddleware, checkCourseListMiddleware, facultyRoutes)
+app.use('/admin', verifyMiddleware, checkCourseListMiddleware, adminRoutes)
 
 
-app.use(abc)
-app.use('/prepare', prepareRoutes)
-app.use('/courses', coursesRoutes)
-
+// default error response
+// app.use((req, res, next) => {
+//     console.log('Route does not exist')
+//     res.status(404).send({
+//         status: 404,
+//         message: 'Not Found',
+//     })
+// })
 app.listen((process.env.HOST, process.env.PORT), () => {
     console.log(`Running on http://${process.env.HOST}:${process.env.PORT}`);
 });

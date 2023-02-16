@@ -1,3 +1,5 @@
 node_modules
 .env
-pdfs/temp
+.vscode
+
+pdfs/temp/*.pdf
